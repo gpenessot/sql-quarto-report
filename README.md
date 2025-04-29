@@ -1,8 +1,3 @@
-Voici un `README.md` basique adapté à ton projet utilisant `uv` pour la gestion des dépendances, sans `requirements.txt`, avec un `pyproject.toml` et un notebook Quarto basé sur DuckDB, Python et `itables` :
-
----
-
-```markdown
 # IMDB Movies SQL Analysis
 
 This project explores a dataset of 250 top-rated IMDB movies using SQL queries via DuckDB and Python, with results displayed as interactive tables using [itables](https://mwouts.github.io/itables/). The report is written in a [Quarto](https://quarto.org/) `.qmd` notebook.
@@ -53,8 +48,3 @@ The SQLite database `movies.db` should be placed inside the `data/` folder. It m
 ## License
 
 MIT License
-```
-
----
-
-Souhaites-tu que je t’aide à générer le `pyproject.toml` minimal correspondant ?
