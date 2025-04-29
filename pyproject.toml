@@ -1,0 +1,11 @@
+[project]
+name = "sql-quarto-report"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "duckdb>=1.2.2",
+    "itables>=2.3.0",
+    "quarto>=0.1.0",
+]

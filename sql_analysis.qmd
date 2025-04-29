@@ -1,0 +1,96 @@
+---
+title: "Analyse SQL des films populaires avec Quarto et Python"
+author: "Gaël Penessot"
+format:
+  html:
+    code-fold: true
+    code-summary: "Show code"
+    toc: true
+jupyter: python3
+---
+
+# Analyse SQL des films populaires avec Quarto et Python
+
+Dans ce document, nous explorons comment interroger une base de données SQLite contenant des informations sur 250 films populaires, et afficher les résultats sous forme de tableaux interactifs à l'aide de la bibliothèque `itables`.
+
+## Configuration de la connexion
+
+```{python}
+import duckdb
+import pandas as pd
+from itables import init_notebook_mode, show
+
+# Initialiser le mode interactif pour itables
+init_notebook_mode(all_interactive=True)
+
+# Connexion à la base de données des films
+con = duckdb.connect("data/movies.db", read_only=True)
+
+# Tester la connexion en affichant le nombre de films
+result = con.execute("SELECT COUNT(*) FROM movies").fetchone()
+print(f"Nombre de films dans la base de données : {result[0]}")
+```
+
+## Les 10 films les mieux notés
+
+```{python}
+query = """
+SELECT 
+    title AS Titre, 
+    imdb_score AS Note, 
+    year AS Année, 
+    director AS Réalisateur
+FROM movies
+ORDER BY imdb_score DESC
+LIMIT 10
+"""
+top_movies = con.execute(query).fetchdf()
+show(top_movies)
+```
+
+## Répartition des films par genre et décennie
+
+```{python}
+query = """
+SELECT 
+    (year / 10) * 10 AS Décennie,
+    SPLIT_PART(genres, ',', 1) AS Genre_Principal,
+    COUNT(*) AS Nombre_Films,
+    ROUND(AVG(imdb_score), 2) AS Note_Moyenne
+FROM movies
+WHERE year > 1900 AND year < 2023
+GROUP BY Décennie, Genre_Principal
+ORDER BY Décennie, Nombre_Films DESC
+"""
+genre_by_decade = con.execute(query).fetchdf()
+show(genre_by_decade)
+```
+
+## Réalisateurs les plus prolifiques
+
+```{python}
+query = """
+WITH director_stats AS (
+    SELECT 
+        director AS Réalisateur,
+        COUNT(*) AS Nombre_Films,
+        ROUND(AVG(imdb_score), 2) AS Note_Moyenne,
+        ROUND(AVG(metacritic_score), 2) AS Metascore_Moyen,
+        MIN(year) AS Première_Année,
+        MAX(year) AS Dernière_Année
+    FROM movies
+    WHERE director != '' AND director IS NOT NULL
+    GROUP BY director
+    HAVING COUNT(*) >= 5
+)
+SELECT *
+FROM director_stats
+ORDER BY Nombre_Films DESC, Note_Moyenne DESC
+"""
+top_directors = con.execute(query).fetchdf()
+show(top_directors)
+```
+
+## Conclusion
+
+Nous avons utilisé Quarto et Python pour interroger une base de données SQLite contenant des informations sur des films populaires, et affiché les résultats sous forme de tableaux interactifs grâce à la bibliothèque `itables`. Cette approche permet une exploration facile et interactive des données directement dans le navigateur.
